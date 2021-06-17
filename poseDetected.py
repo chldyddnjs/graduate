@@ -85,6 +85,7 @@ def detectAndDisplay(img):
 import pandas as pd
 import os
 new_data = detectAndDisplay(img)
+new_data.append(0)
 df = pd.DataFrame([new_data])
 
 if not os.path.exists('pos.csv'):
