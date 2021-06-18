@@ -18,7 +18,7 @@ POSE_PAIRS = [ ["Head", "Neck"], ["Neck", "RShoulder"], ["RShoulder", "RElbow"],
 
 net = cv2.dnn.readNetFromCaffe(protoFile,weightFile)
 
-img = cv2.imread('dataset/ce1dcb59af6382f85a9019c5b4a2ccf5.jpg')
+img = cv2.imread('dataset\ce1dcb59af6382f85a9019c5b4a2ccf5.jpg')
 def detectAndDisplay(img):
     img = cv2.resize(img,(368,368),cv2.INTER_LANCZOS4)
     width,height,channels = img.shape
@@ -56,11 +56,11 @@ def detectAndDisplay(img):
             data.append(int(y))
         else:
             points.append(None)
+            data.append(0)
+            data.append(0)
     cv2.imshow('test',img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-
-    print(data)
 
     imageCopy = img
 
@@ -79,6 +79,7 @@ def detectAndDisplay(img):
     cv2.imshow("test",imageCopy)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+    print(data)
     return data
 
 #데이터셋 만들기
@@ -88,7 +89,11 @@ new_data = detectAndDisplay(img)
 new_data.append(0)
 df = pd.DataFrame([new_data])
 
+print(len(new_data))
+
 if not os.path.exists('pos.csv'):
     df.to_csv('pos.csv', index=False, mode='w', encoding='utf-8-sig')
+    print('Success')
 else:
     df.to_csv('pos.csv', index=False, mode='a', encoding='utf-8-sig', header=False)
+    print('Success')
