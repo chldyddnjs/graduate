@@ -1,9 +1,10 @@
 import cv2
 import numpy as np
+import os
 
 protoFile = r'C:\Users\user\Desktop\graduate\openpose\models\pose\mpi\pose_deploy_linevec_faster_4_stages.prototxt'
 weightFile = r'C:\Users\user\Desktop\graduate\openpose\models\pose\mpi\pose_iter_160000.caffemodel'
-min_confidence = 0.5
+min_confidence = 0.1
 
 BODY_PARTS = { "Head": 0, "Neck": 1, "RShoulder": 2, "RElbow": 3, "RWrist": 4,
                 "LShoulder": 5, "LElbow": 6, "LWrist": 7, "RHip": 8, "RKnee": 9,
@@ -18,8 +19,15 @@ POSE_PAIRS = [ ["Head", "Neck"], ["Neck", "RShoulder"], ["RShoulder", "RElbow"],
 
 net = cv2.dnn.readNetFromCaffe(protoFile,weightFile)
 
-img = cv2.imread('dataset\ce1dcb59af6382f85a9019c5b4a2ccf5.jpg')
-def detectAndDisplay(img):
+
+
+
+def detectAndDisplay(img,path):
+    if img is None:
+        print('Wrong path:')
+    else:
+        img = cv2.resize(img, dsize=(368,368))
+
     img = cv2.resize(img,(368,368),cv2.INTER_LANCZOS4)
     width,height,channels = img.shape
 
@@ -58,7 +66,7 @@ def detectAndDisplay(img):
             points.append(None)
             data.append(0)
             data.append(0)
-    cv2.imshow('test',img)
+    cv2.imshow(path,img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
@@ -76,24 +84,45 @@ def detectAndDisplay(img):
             cv2.line(imageCopy, points[partA], points[partB], (0, 255, 0), 2)
 
 
-    cv2.imshow("test",imageCopy)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.imshow("test",imageCopy)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
     print(data)
     return data
-
 #데이터셋 만들기
 import pandas as pd
-import os
-new_data = detectAndDisplay(img)
-new_data.append(0)
-df = pd.DataFrame([new_data])
+os.chdir('dataset')
+img_path = 'dataset/'
+paths = []
+for current_dir,dirs,files in os.walk('.'):
+    for file in files:
+        new_path = img_path + current_dir[2:] + '/'
+        if file.endswith('.jpg'):
+            new_path = new_path + file
+            paths.append(new_path)
 
-print(len(new_data))
+os.chdir(r'C:\Users\user\Desktop\graduate')
+for path in paths:
+    img = cv2.imread(path)
+    new_data = detectAndDisplay(img,path)
+    if current_dir[2:] == 'Standup':
+        new_data.append(0)
+    if current_dir[2:] == 'Squat':
+        new_data.append(1)
+    #if 레그레이션 준비자세
+    #   new_data.append(2)
+    #if 레그레이션 동작자세
+    #   new_data.append(3)
+    #if 플랭크 준비자세
+    #   new_data.append(4)
+    #if 플랭크 동작 자세
+    #   new_data.append(5)
+    df = pd.DataFrame([new_data])
+    print(len(new_data))
 
-if not os.path.exists('pos.csv'):
-    df.to_csv('pos.csv', index=False, mode='w', encoding='utf-8-sig')
-    print('Success')
-else:
-    df.to_csv('pos.csv', index=False, mode='a', encoding='utf-8-sig', header=False)
-    print('Success')
+    if not os.path.exists('pos.csv'):
+        df.to_csv('pos.csv', index=False, mode='w', encoding='utf-8-sig')
+        print('Success')
+    else:
+        df.to_csv('pos.csv', index=False, mode='a', encoding='utf-8-sig', header=False)
+        print('Success')
