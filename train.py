@@ -1,3 +1,5 @@
+
+import json
 import pandas as pd
 import os
 
@@ -18,16 +20,17 @@ y_one_hot = tf.keras.utils.to_categorical(y_train)
 learning_rate = 1e-2
 learning_epochs = 1000
 
-sgd =tf.keras.optimizers.SGD(learning_rate=learning_rate)
+def get_model():
+    model = tf.keras.models.Sequential()
+    model.add(tf.keras.layers.Dense(10,input_shape = (30,),activation='relu')) # input layer
+    model.add(tf.keras.layers.Dense(10,activation='relu')) # hidden layer
+    model.add(tf.keras.layers.Dense(2,activation='softmax')) # output layer
+    model.compile(loss='categorical_crossentropy',
+                optimizer='adam',
+                metrics=['accuracy'])
+    return model
 
-model = tf.keras.models.Sequential()
-model.add(tf.keras.layers.Dense(2,input_shape = (30,),activation='relu')) # input layer
-model.add(tf.keras.layers.Dense(10,activation='relu')) # hidden layer
-model.add(tf.keras.layers.Dense(2,activation='softmax')) # output layer
-model.compile(loss='categorical_crossentropy',
-              optimizer=sgd,
-              metrics=['accuracy'])
-
+model = get_model()
 model.summary()
 
 history = model.fit(np.array(X_train),np.array(y_one_hot),epochs=learning_epochs)
@@ -37,11 +40,23 @@ plt.figure(figsize=(5,5))
 plt.plot(history.history['loss'])
 plt.show()
 
-input = []
-result = model.predict(np.array([input]))
+for step in range(learning_epochs):
+    if step %100 == 0:
+        cost_val = history.history['loss'][step]
+        acc_val = history.history['accuracy'][step]
+        print("%20i %20.5f %20.5f" % (step,cost_val,acc_val))
+Input = [232,88,208,136,184,136,160,168,176,168,224,152,224,200,224,240,168,176,168,216,160,280,200,184,216,208,200,272,192,160]
+prediction = model.predict(np.array([Input]))
+print(prediction[0])
 
-classes = ['standUp','Squat']
-classID = np.argmax(result[0])
-prediction = classes[classID]
+classes = ['Stand','Squat']
+classID = np.argmax(prediction[0])
+result = classes[classID]
 
-print(prediction)
+print(result)
+
+model_json = model.to_json()
+with open("mode.json","w") as json_file:
+    json_file.write(model_json)
+
+model.save_weights('model.h5')
