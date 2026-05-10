@@ -19,4 +19,4 @@ Python, TensorFlow, TFLite, PoseNet, Android
 - 학점 A
 
 ## 포스터
-![포스터]()
+![포스터](https://github.com/chldyddnjs/graduate/blob/main/%EC%86%8C%ED%94%84%ED%8A%B8%EC%9B%A8%EC%96%B4%EC%9C%B5%ED%95%A9%EC%A0%84%EA%B3%B5-%EB%B0%B1%ED%95%9C%EC%B5%9C%20(1).jpeg)
